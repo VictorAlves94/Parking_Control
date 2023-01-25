@@ -31,6 +31,13 @@ public class ParkingSpotModel implements Serializable {
     @Column(nullable = false,length = 30)
     private String block;
 
+    public ParkingSpotModel() {
+    }
+
+    public ParkingSpotModel(UUID id) {
+        this.id = id;
+    }
+
     public UUID getId() {
         return id;
     }
@@ -105,5 +112,8 @@ public class ParkingSpotModel implements Serializable {
 
     public void setBlock(String block) {
         this.block = block;
+    }
+
+    public void setId(UUID id) {
     }
 }
