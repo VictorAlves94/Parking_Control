@@ -7,7 +7,7 @@ public class ParkingSpotDto {
     @NotBlank
     private String parkingSpotNumber;
     @NotBlank
-    @Size(max = 7)
+    @Size(min = 7, max = 7)
     private String licensePlateCar;
     @NotBlank
     private String brandCar;
@@ -16,7 +16,7 @@ public class ParkingSpotDto {
     @NotBlank
     private String colorCar;
     @NotBlank
-    private String responsableName;
+    private String responsibleName;
     @NotBlank
     private String apartment;
     @NotBlank
@@ -63,11 +63,11 @@ public class ParkingSpotDto {
     }
 
     public String getResponsableName() {
-        return responsableName;
+        return responsibleName;
     }
 
     public void setResponsableName(String responsableName) {
-        this.responsableName = responsableName;
+        this.responsibleName = responsableName;
     }
 
     public String getApartment() {

@@ -1,4 +1,4 @@
-package com.api.parkingcontrol.model;
+package com.api.parkingcontrol.entity;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -7,7 +7,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "DB_PARKING_SPOT")
-public class ParkingSpotModel implements Serializable {
+public class ParkingSpotEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -25,16 +25,16 @@ public class ParkingSpotModel implements Serializable {
     @Column(nullable = false)
     private LocalDateTime registrationDate;
     @Column(nullable = false,length = 130)
-    private String responsableName;
+    private String responsibleName;
     @Column(nullable = false,length = 30)
     private String apartment;
     @Column(nullable = false,length = 30)
     private String block;
 
-    public ParkingSpotModel() {
+    public ParkingSpotEntity() {
     }
 
-    public ParkingSpotModel(UUID id) {
+    public ParkingSpotEntity(UUID id) {
         this.id = id;
     }
 
@@ -91,11 +91,11 @@ public class ParkingSpotModel implements Serializable {
     }
 
     public String getResponsableName() {
-        return responsableName;
+        return responsibleName;
     }
 
     public void setResponsableName(String responsableName) {
-        this.responsableName = responsableName;
+        this.responsibleName = responsableName;
     }
 
     public String getApartment() {

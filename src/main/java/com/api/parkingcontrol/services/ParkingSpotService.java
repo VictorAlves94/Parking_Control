@@ -1,8 +1,8 @@
 package com.api.parkingcontrol.services;
 
-import com.api.parkingcontrol.model.ParkingSpotModel;
+import com.api.parkingcontrol.entity.ParkingSpotEntity;
+import com.api.parkingcontrol.exceptions.BusinessException;
 import com.api.parkingcontrol.repository.ParkingSpotRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -13,14 +13,14 @@ import java.util.UUID;
 
 @Service
 public class ParkingSpotService {
-    @Autowired
+
     final ParkingSpotRepository parkingSpotRepository;
 
     public ParkingSpotRepository getParkingSpotRepository() {
         return parkingSpotRepository;
     }
 
-    public Page<ParkingSpotModel> findAll(Pageable pageable ){
+    public Page<ParkingSpotEntity> findAll(Pageable pageable ){
         return parkingSpotRepository.findAll(pageable);
     }
 
@@ -28,30 +28,47 @@ public class ParkingSpotService {
         this.parkingSpotRepository = parkingSpotRepository;
     }
     @Transactional
-    public ParkingSpotModel save(ParkingSpotModel parkingSpotModel) {
-        return parkingSpotRepository.save(parkingSpotModel);
+    public ParkingSpotEntity save(ParkingSpotEntity parkingSpotEntity) {
+
+        if (parkingSpotEntity.getId() == null) {
+            // CREATE
+            if (parkingSpotRepository.existsByLicensePlateCar(parkingSpotEntity.getLicensePlateCar())) {
+                throw new BusinessException("License Plate Car is already in use!");
+            }
+
+            if (parkingSpotRepository.existsByParkingSpotNumber(parkingSpotEntity.getParkingSpotNumber())) {
+                throw new BusinessException("Parking Spot is already in use!");
+            }
+
+            if (parkingSpotRepository.existsByApartmentAndBlock(
+                    parkingSpotEntity.getApartment(),
+                    parkingSpotEntity.getBlock())) {
+
+                throw new BusinessException("Parking Spot already registered for this apartment/block!");
+            }
+
+        } else {
+
+            if (parkingSpotRepository.existsByLicensePlateCarAndIdNot(
+                    parkingSpotEntity.getLicensePlateCar(),
+                    parkingSpotEntity.getId())) {
+
+                throw new BusinessException("License Plate Car is already in use!");
+            }
+
+
+        }
+
+        return parkingSpotRepository.save(parkingSpotEntity);
     }
 
 
-    public boolean existsByLicensePlateCar(String licensePlateCar) {
-        return parkingSpotRepository.existsByLicensePlateCar(licensePlateCar);
-    }
-
-    public boolean existsByParkingSpotNumber(String parkingSpotNumber) {
-        return parkingSpotRepository.existsByParkingSpotNumber(parkingSpotNumber);
-    }
-
-    public boolean existsByApartmentAndBlock(String apartment, String block) {
-        return parkingSpotRepository.existsByApartmentAndBlock(apartment, block);
-    }
-
-
-    public Optional<ParkingSpotModel> findById(UUID id) {
+    public Optional<ParkingSpotEntity> findById(UUID id) {
         return parkingSpotRepository.findById(id);
     }
     @Transactional
-    public void delete(ParkingSpotModel parkingSpotModel) {
-        parkingSpotRepository.delete(parkingSpotModel);
+    public void delete(ParkingSpotEntity parkingSpotEntity) {
+        parkingSpotRepository.delete(parkingSpotEntity);
 
     }
 }
