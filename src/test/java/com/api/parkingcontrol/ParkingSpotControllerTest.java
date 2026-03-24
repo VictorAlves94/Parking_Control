@@ -37,9 +37,7 @@ public class ParkingSpotControllerTest {
     void deveCriarParkingSpot() throws Exception {
 
         ParkingSpotDto dto = criarDtoValido();
-
-        ParkingSpotEntity entity = new ParkingSpotEntity();
-        entity.setLicensePlateCar("ABC1234");
+        ParkingSpotEntity entity = criarEntity();
 
         when(service.save(any(ParkingSpotEntity.class))).thenReturn(entity);
 
@@ -47,6 +45,7 @@ public class ParkingSpotControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(entity.getId().toString()))
                 .andExpect(jsonPath("$.licensePlateCar").value("ABC1234"));
 
         verify(service).save(any(ParkingSpotEntity.class));
@@ -55,14 +54,14 @@ public class ParkingSpotControllerTest {
     @Test
     void deveListarParkingSpots() throws Exception {
 
-        ParkingSpotEntity entity = new ParkingSpotEntity();
-        entity.setLicensePlateCar("ABC1234");
+        ParkingSpotEntity entity = criarEntity();
 
         when(service.findAll(any()))
                 .thenReturn(new PageImpl<>(List.of(entity)));
 
         mockMvc.perform(get("/parking-spot"))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isArray())
                 .andExpect(jsonPath("$.content[0].licensePlateCar").value("ABC1234"));
 
         verify(service).findAll(any());
@@ -81,17 +80,15 @@ public class ParkingSpotControllerTest {
     void deveRetornarParkingSpotPorId() throws Exception {
 
         UUID id = UUID.randomUUID();
-
-        ParkingSpotEntity entity = new ParkingSpotEntity();
+        ParkingSpotEntity entity = criarEntity();
         entity.setId(id);
-        entity.setLicensePlateCar("ABC1234");
 
         when(service.findById(id)).thenReturn(Optional.of(entity));
 
         mockMvc.perform(get("/parking-spot/{id}", id))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.licensePlateCar").value("ABC1234"))
-                .andExpect(jsonPath("$.id").value(id.toString()));
+                .andExpect(jsonPath("$.id").value(id.toString()))
+                .andExpect(jsonPath("$.licensePlateCar").value("ABC1234"));
 
         verify(service).findById(id);
     }
@@ -111,18 +108,17 @@ public class ParkingSpotControllerTest {
     void deveDeletarParkingSpot() throws Exception {
 
         UUID id = UUID.randomUUID();
-
-        ParkingSpotEntity entity = new ParkingSpotEntity();
+        ParkingSpotEntity entity = criarEntity();
         entity.setId(id);
 
         when(service.findById(id)).thenReturn(Optional.of(entity));
-        doNothing().when(service).delete(any(ParkingSpotEntity.class));
+        doNothing().when(service).delete(entity);
 
         mockMvc.perform(delete("/parking-spot/{id}", id))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Parking Spot deleted successfully"));
 
-        verify(service).delete(any(ParkingSpotEntity.class));
+        verify(service).delete(entity);
     }
 
     @Test
@@ -140,12 +136,10 @@ public class ParkingSpotControllerTest {
     void deveAtualizarParkingSpot() throws Exception {
 
         UUID id = UUID.randomUUID();
-
         ParkingSpotDto dto = criarDtoValido();
 
-        ParkingSpotEntity entity = new ParkingSpotEntity();
+        ParkingSpotEntity entity = criarEntity();
         entity.setId(id);
-        entity.setLicensePlateCar("ABC1234");
 
         when(service.findById(id)).thenReturn(Optional.of(entity));
         when(service.save(any(ParkingSpotEntity.class))).thenReturn(entity);
@@ -154,6 +148,7 @@ public class ParkingSpotControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(id.toString()))
                 .andExpect(jsonPath("$.licensePlateCar").value("ABC1234"));
 
         verify(service).save(any(ParkingSpotEntity.class));
@@ -172,6 +167,10 @@ public class ParkingSpotControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    // =========================
+    // MÉTODOS AUXILIARES
+    // =========================
+
     private ParkingSpotDto criarDtoValido() {
         ParkingSpotDto dto = new ParkingSpotDto();
         dto.setLicensePlateCar("ABC1234");
@@ -181,7 +180,14 @@ public class ParkingSpotControllerTest {
         dto.setBrandCar("Toyota");
         dto.setModelCar("Corolla");
         dto.setColorCar("Preto");
-        dto.setResponsableName("Victor");
+        dto.setResponsibleName("Victor");
         return dto;
+    }
+
+    private ParkingSpotEntity criarEntity() {
+        ParkingSpotEntity entity = new ParkingSpotEntity();
+        entity.setId(UUID.randomUUID());
+        entity.setLicensePlateCar("ABC1234");
+        return entity;
     }
 }
