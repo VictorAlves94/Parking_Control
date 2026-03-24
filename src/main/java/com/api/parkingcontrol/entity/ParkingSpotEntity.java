@@ -34,9 +34,6 @@ public class ParkingSpotEntity implements Serializable {
     public ParkingSpotEntity() {
     }
 
-    public ParkingSpotEntity(UUID id) {
-        this.id = id;
-    }
 
     public UUID getId() {
         return id;
